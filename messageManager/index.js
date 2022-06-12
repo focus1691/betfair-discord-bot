@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const moment = require('moment');
 const { MessageEmbed } = require('discord.js');
-const { CHARACTER_LIMIT, eventChoices } = require('../constants');
+const { CHARACTER_LIMIT, ALLOWED_CHANNELS, eventChoices } = require('../constants');
 
 class MessageManager {
   static PREFIX = '/';
@@ -10,7 +10,7 @@ class MessageManager {
   }
 
   async onInteraction(interaction) {
-    if (!interaction.isCommand()) return;
+    if (!interaction.isCommand() || !ALLOWED_CHANNELS.includes(interaction.channelId)) return;
 
     if (interaction.commandName === 'next-event') {
       await this.betfair.login(process.env.VENDOR_USER, process.env.VENDOR_PASS);

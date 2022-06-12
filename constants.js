@@ -29,4 +29,6 @@ const eventChoices = [
 
 CHARACTER_LIMIT = 1000;
 
-module.exports = { CHARACTER_LIMIT, eventChoices };
+const ALLOWED_CHANNELS = ['985503971869360160'];
+
+module.exports = { CHARACTER_LIMIT, ALLOWED_CHANNELS, eventChoices };
