@@ -12,26 +12,41 @@ class MessageManager {
   async onInteraction(interaction) {
     if (!interaction.isCommand() || !ALLOWED_CHANNELS.includes(interaction.channelId)) return;
 
+    await this.connectToBetfair();
+
     if (interaction.commandName === 'next-market') {
-      await this.betfair.login(process.env.VENDOR_USER, process.env.VENDOR_PASS);
-      const sportId = interaction.options.getString('sport');
-      this.getNextAvailableMarket(interaction, sportId);
+      this.getNextMarket(interaction);
     }
     else if (interaction.commandName === 'next-horse-race') {
-      try {
-        if (!this.betfair.sessionKey) {
-          await this.betfair.login(process.env.VENDOR_USER, process.env.VENDOR_PASS);
-          this.getNextAvailableMarket(interaction, '7');
-        }
-      } catch (error) {
-        console.log(error);
-      }
+      this.getNextHorseRace(interaction);
     }
     else if (interaction.commandName === 'get-market') {
-      const marketId = interaction.options.getString('marketid');
-      await this.betfair.login(process.env.VENDOR_USER, process.env.VENDOR_PASS);
-      this.getNextAvailableMarket(interaction, null, marketId);
+      this.getMarket(interaction);
     }
+  }
+
+  async getNextMarket(interaction) {
+    const sportId = interaction.options.getString('sport');
+    this.getNextAvailableMarket(interaction, sportId);
+  }
+
+  async getNextHorseRace(interaction) {
+    this.getNextAvailableMarket(interaction, '7');
+  }
+
+  async getMarket(interaction) {
+    const marketId = interaction.options.getString('marketid');
+    this.getNextAvailableMarket(interaction, null, marketId);
+  }
+
+  async connectToBetfair() {
+    if (!this.betfair.sessionKey) {
+      await this.betfair.login(process.env.VENDOR_USER, process.env.VENDOR_PASS);
+    }
+  }
+
+  async resetBetFairAuth() {
+    this.betfair.setSession(null);
   }
 
   async getNextAvailableMarket(interaction, eventTypeId, marketId) {
@@ -59,7 +74,13 @@ class MessageManager {
       maxResults: 1,
       marketProjection: ['COMPETITION', 'EVENT', 'EVENT_TYPE', 'MARKET_START_TIME', 'MARKET_DESCRIPTION', 'RUNNER_DESCRIPTION', 'RUNNER_METADATA']
     }, async (err, { error, result }) => {
-      if (!error && !_.isEmpty(result) && !_.isEmpty(result[0])) {
+      if (error) {
+        if (error.data && error.data.APINGException) {
+          this.resetBetFairAuth();
+          this.connectToBetfair();
+        }
+      }
+      else if (!_.isEmpty(result) && !_.isEmpty(result[0])) {
         const raceInfo = result[0];
         const runnerNames = {};
         let marketInfo = raceInfo.runners.map(runner => {
