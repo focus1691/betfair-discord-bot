@@ -16,17 +16,25 @@ client.on('interactionCreate', messageManager.onInteraction.bind(messageManager)
 client.login(process.env.BOT_TOKEN);
 
 const commands = [
-  new SlashCommandBuilder().setName('horse-race').setDescription('Get details of the next Horse Race'),
+  new SlashCommandBuilder().setName('next-horse-race').setDescription('Get details of the next Horse Race'),
   new SlashCommandBuilder()
-    .setName('next-event')
+    .setName('next-market')
     .setDescription('Get details of the next market')
     .addStringOption(option =>
       option.setName('sport')
         .setDescription('The sport')
         .setRequired(true)
         .addChoices(...eventChoices)
-    )
-  ]
+    ),
+  new SlashCommandBuilder()
+    .setName('get-market')
+    .setDescription('Get details of a market if you know the marketId')
+    .addStringOption(option =>
+      option.setName('marketid')
+        .setDescription('The Market Id')
+        .setRequired(true)
+    ),
+]
   .map(command => command.toJSON());
 
 const rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN);

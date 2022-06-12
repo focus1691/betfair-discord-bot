@@ -12,12 +12,12 @@ class MessageManager {
   async onInteraction(interaction) {
     if (!interaction.isCommand() || !ALLOWED_CHANNELS.includes(interaction.channelId)) return;
 
-    if (interaction.commandName === 'next-event') {
+    if (interaction.commandName === 'next-market') {
       await this.betfair.login(process.env.VENDOR_USER, process.env.VENDOR_PASS);
       const sportId = interaction.options.getString('sport');
       this.getNextAvailableMarket(interaction, sportId);
     }
-    else if (interaction.commandName === 'horse-race') {
+    else if (interaction.commandName === 'next-horse-race') {
       try {
         if (!this.betfair.sessionKey) {
           await this.betfair.login(process.env.VENDOR_USER, process.env.VENDOR_PASS);
@@ -27,14 +27,26 @@ class MessageManager {
         console.log(error);
       }
     }
+    else if (interaction.commandName === 'get-market') {
+      const marketId = interaction.options.getString('marketid');
+      await this.betfair.login(process.env.VENDOR_USER, process.env.VENDOR_PASS);
+      this.getNextAvailableMarket(interaction, null, marketId);
+    }
   }
 
-  async getNextAvailableMarket(interaction, eventTypeId) {
+  async getNextAvailableMarket(interaction, eventTypeId, marketId) {
     const marketFilter = {
-      eventTypeIds: [eventTypeId],
       marketStartTime: {
         from: new Date().toJSON()
       },
+    }
+
+    if (marketId) {
+      marketFilter.marketIds = [marketId];
+    }
+
+    if (eventTypeId) {
+      marketFilter.eventTypeIds = [eventTypeId];
     }
 
     if (eventTypeId === '7') {
@@ -81,11 +93,9 @@ class MessageManager {
           if (!error && !_.isEmpty(result) && !_.isEmpty(result[0])) {
             const marketBook = result[0];
             const { status, totalMatched, lastMatchTime, runners } = marketBook;
-            console.log(marketBook);
 
             marketInfo = runners.map(runner => {
               const parts = ['', runnerNames[runner.selectionId]];
-              console.log(runner);
 
               if (runner.lastPriceTraded) {
                 const tradedPart = `Last Traded Price @ ${runner.lastPriceTraded}`;
@@ -95,7 +105,7 @@ class MessageManager {
                 const totalMatchedPart = `Total Matched ${runner.totalMatched}`;
                 parts.push(totalMatchedPart);
               }
-              
+
               return parts.join('\n')
             }).join(`\n${this.divider}`).substring(0, CHARACTER_LIMIT);
 
