@@ -15,15 +15,23 @@ class MessageManager {
 
       await interaction.reply(`Pong! This message had a latency of ${timeTaken}ms.`);
     }
+    else if (interaction.commandName === 'next-event') {
+      try {
+        if (!this.betfair.sessionKey) {
+          // console.log(process.env.VENDOR_USER, process.env.VENDOR_PASS);
+          await this.betfair.login(process.env.VENDOR_USER, process.env.VENDOR_PASS);
+          // this.getNextAvailableHorseRace(message);
 
-    try {
-      if (!this.betfair.sessionKey) {
-        console.log(process.env.VENDOR_USER, process.env.VENDOR_PASS);
-        await this.betfair.login(process.env.VENDOR_USER, process.env.VENDOR_PASS);
-        this.getNextAvailableHorseRace(message);
+          this.betfair.listEventTypes({
+            filter: {},
+          },
+            async (err, { error, result }) => {
+              console.log(result);
+            });
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
     }
   }
 
