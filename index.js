@@ -15,9 +15,7 @@ client.on('interactionCreate', messageManager.onInteraction.bind(messageManager)
 client.login(process.env.BOT_TOKEN);
 
 const commands = [
-  new SlashCommandBuilder().setName('ping').setDescription('Replies with pong!'),
-  new SlashCommandBuilder().setName('server').setDescription('Replies with server info!'),
-  new SlashCommandBuilder().setName('user').setDescription('Replies with user info!'),
+  new SlashCommandBuilder().setName('ping').setDescription('Replies with pong!')
 ]
   .map(command => command.toJSON());
 
