@@ -13,7 +13,8 @@
     "discord-api-types": "^0.33.5",
     "discord.js": "^13.8.0",
     "dotenv": "^16.0.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "moment": "^2.29.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.16"
