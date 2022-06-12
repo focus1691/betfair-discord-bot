@@ -27,4 +27,6 @@ const eventChoices = [
   // { value: '2378961', name: 'Politics' }
 ];
 
-module.exports = { eventChoices };
+CHARACTER_LIMIT = 1000;
+
+module.exports = { CHARACTER_LIMIT, eventChoices };
