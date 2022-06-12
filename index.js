@@ -5,7 +5,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const BetFairSession = require('./betfair/session');
 const MessageManager = require('./messageManager');
-const { eventChoices } = require('./constants');
+const { eventChoices, GUILDS_LIST } = require('./constants');
 
 const client = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
 const betfair = new BetFairSession(process.env.APP_KEY);
@@ -29,17 +29,18 @@ const commands = [
   ]
   .map(command => command.toJSON());
 
-
 const rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN);
 
 (async () => {
   try {
     console.log('Started refreshing application (/) commands.');
 
-    await rest.put(
-      Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-      { body: commands },
-    );
+    for (let i = 0; i < GUILDS_LIST.length; i++) {
+      await rest.put(
+        Routes.applicationGuildCommands(process.env.CLIENT_ID, GUILDS_LIST[i]),
+        { body: commands },
+      );
+    }
 
     console.log('Successfully reloaded application (/) commands.');
   } catch (error) {

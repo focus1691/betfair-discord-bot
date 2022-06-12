@@ -4,7 +4,6 @@ const { MessageEmbed } = require('discord.js');
 const { CHARACTER_LIMIT, ALLOWED_CHANNELS, eventChoices } = require('../constants');
 
 class MessageManager {
-  static PREFIX = '/';
   constructor(betfair) {
     this.betfair = betfair;
   }
