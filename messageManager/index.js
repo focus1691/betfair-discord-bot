@@ -10,12 +10,7 @@ class MessageManager {
   async onInteraction(interaction) {
     if (!interaction.isCommand()) return;
 
-    if (interaction.commandName === 'ping') {
-      const timeTaken = Date.now() - interaction.createdTimestamp;
-
-      await interaction.reply(`Pong! This message had a latency of ${timeTaken}ms.`);
-    }
-    else if (interaction.commandName === 'next-event') {
+    if (interaction.commandName === 'next-event') {
       const sport = interaction.options.getString('sport');
     }
     else if (interaction.commandName === 'horse-race') {
