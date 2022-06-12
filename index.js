@@ -6,7 +6,6 @@ const { Routes } = require('discord-api-types/v9');
 const BetFairSession = require('./betfair/session');
 const MessageManager = require('./messageManager');
 const { eventChoices } = require('./constants');
-console.log(eventChoices);
 
 const client = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
 const betfair = new BetFairSession(process.env.APP_KEY);
@@ -18,12 +17,13 @@ client.login(process.env.BOT_TOKEN);
 
 const commands = [
   new SlashCommandBuilder().setName('ping').setDescription('Replies with pong!'),
+  new SlashCommandBuilder().setName('horse-race').setDescription('Get details of the next Horse Race'),
   new SlashCommandBuilder()
     .setName('next-event')
-    .setDescription('Get the market info of the next race / game in the specified market')
+    .setDescription('Get details of the next market')
     .addStringOption(option =>
-      option.setName('category')
-        .setDescription('The gif category')
+      option.setName('sport')
+        .setDescription('The sport')
         .setRequired(true)
         .addChoices(...eventChoices)
     )
