@@ -7,6 +7,6 @@ const client = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
 const betfair = new BetFairSession(process.env.APP_KEY);
 const messageManager = new MessageManager(betfair);
 
-client.on('messageCreate', messageManager.onMessageInput);
+client.on('messageCreate', messageManager.onMessageInput.bind(messageManager));
 
 client.login(process.env.BOT_TOKEN);
