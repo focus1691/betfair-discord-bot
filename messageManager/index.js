@@ -6,6 +6,7 @@ const { CHARACTER_LIMIT, ALLOWED_CHANNELS, eventChoices } = require('../constant
 class MessageManager {
   constructor(betfair) {
     this.betfair = betfair;
+    this.divider = '---------------';
   }
 
   async onInteraction(interaction) {
@@ -48,19 +49,68 @@ class MessageManager {
     }, async (err, { error, result }) => {
       if (!error && !_.isEmpty(result) && !_.isEmpty(result[0])) {
         const raceInfo = result[0];
-        const runners = raceInfo.runners.map(runner => runner.runnerName).join('\n').substring(0, CHARACTER_LIMIT);
+        const runnerNames = {};
+        let marketInfo = raceInfo.runners.map(runner => {
+          runnerNames[runner.selectionId] = runner.runnerName;
+          return runner.runnerName;
+        }).join(`\n${this.divider}`).substring(0, CHARACTER_LIMIT);
         const { marketId, marketStartTime, competition, eventType, event } = raceInfo;
 
         const messageEmbed = new MessageEmbed()
           .setTitle(`${event.venue || event.name} ${moment(marketStartTime).calendar()}`)
           .addFields(
             { name: 'Sport', value: eventType.name },
-            { name: 'Competition / Event', value: competition && competition.name || event.name || '' },
-            { name: 'Markets', value: runners && runners.toString() || '' },
-            { name: 'Market link', value: `https://www.betfair.com/exchange/plus/market/${marketId}` },
+            { name: 'Competition / Event', value: competition && competition.name || event.name || '' }
           );
 
-        await interaction.reply({ embeds: [messageEmbed] });
+        this.betfair.listMarketBook({
+          marketIds: [marketId],
+          priceProjection: {
+            priceData: ['EX_BEST_OFFERS', 'EX_ALL_OFFERS', 'EX_TRADED'],
+            exBestOfferOverRides: {
+              bestPricesDepth: 2,
+              rollupModel: 'STAKE',
+              rollupLimit: 20
+            },
+            virtualise: false,
+            rolloverStakes: false
+          },
+          orderProjection: 'ALL',
+          matchProjection: 'ROLLED_UP_BY_PRICE'
+        }, async (err, { error, result }) => {
+          if (!error && !_.isEmpty(result) && !_.isEmpty(result[0])) {
+            const marketBook = result[0];
+            const { status, totalMatched, lastMatchTime, runners } = marketBook;
+            console.log(marketBook);
+
+            marketInfo = runners.map(runner => {
+              const parts = ['', runnerNames[runner.selectionId]];
+              console.log(runner);
+
+              if (runner.lastPriceTraded) {
+                const tradedPart = `Last Traded Price @ ${runner.lastPriceTraded}`;
+                parts.push(tradedPart);
+              }
+              if (runner.totalMatched) {
+                const totalMatchedPart = `Total Matched ${runner.totalMatched}`;
+                parts.push(totalMatchedPart);
+              }
+              
+              return parts.join('\n')
+            }).join(`\n${this.divider}`).substring(0, CHARACTER_LIMIT);
+
+            messageEmbed.addFields(
+              { name: 'Status', value: status.toString() },
+              { name: 'Markets', value: marketInfo ? marketInfo.toString() : '' },
+              { name: 'Total Matched', value: totalMatched.toString() },
+              { name: 'Last Matched Time', value: moment(lastMatchTime).calendar().toString().toLocaleLowerCase() },
+              { name: 'Market link', value: `https://www.betfair.com/exchange/plus/market/${marketId}` }
+            );
+          } else {
+            messageEmbed.addField('Markets', marketInfo ? marketInfo.toString() : '', false);
+          }
+          await interaction.reply({ embeds: [messageEmbed] });
+        });
       }
     });
   }
