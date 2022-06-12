@@ -16,7 +16,6 @@ client.on('interactionCreate', messageManager.onInteraction.bind(messageManager)
 client.login(process.env.BOT_TOKEN);
 
 const commands = [
-  new SlashCommandBuilder().setName('ping').setDescription('Replies with pong!'),
   new SlashCommandBuilder().setName('horse-race').setDescription('Get details of the next Horse Race'),
   new SlashCommandBuilder()
     .setName('next-event')
