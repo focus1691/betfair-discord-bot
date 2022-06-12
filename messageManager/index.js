@@ -2,28 +2,18 @@ const _ = require('lodash');
 const Discord = require('discord.js');
 
 class MessageManager {
-  static PREFIX = '!';
+  static PREFIX = '/';
   constructor(betfair) {
     this.betfair = betfair;
   }
 
-  async onMessageInput(message) {
-    if (message.author.bot) return;
-    if (!message.content.startsWith(MessageManager.PREFIX)) return;
+  async onInteraction(interaction) {
+    if (!interaction.isCommand()) return;
 
-    const commandBody = message.content.slice(MessageManager.PREFIX.length);
-    const args = commandBody.split(' ');
-    const command = args.shift().toLowerCase();
+    if (interaction.commandName === 'ping') {
+      const timeTaken = Date.now() - interaction.createdTimestamp;
 
-    if (command === 'ping') {
-      const timeTaken = Date.now() - message.createdTimestamp;
-      message.reply(`Pong! This message had a latency of ${timeTaken}ms.`);
-    }
-
-    else if (command === 'sum') {
-      const numArgs = args.map(x => parseFloat(x));
-      const sum = numArgs.reduce((counter, x) => counter += x);
-      message.reply(`The sum of all the arguments you provided is ${sum}!`);
+      await interaction.reply(`Pong! This message had a latency of ${timeTaken}ms.`);
     }
 
     try {
@@ -59,7 +49,7 @@ class MessageManager {
         // .addField(`https://www.betfair.com/exchange/plus/horse-racing/market/1.200066572`)
         // .addField(runners)
 
-        // message.reply(messageParts);
+        // await interaction.reply(messageParts);
       }
     });
   }
