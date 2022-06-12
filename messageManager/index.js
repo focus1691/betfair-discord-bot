@@ -11,7 +11,7 @@ class MessageManager {
     if (message.author.bot) return;
     if (!message.content.startsWith(MessageManager.PREFIX)) return;
 
-    const commandBody = message.content.slice(PREFIX.length);
+    const commandBody = message.content.slice(MessageManager.PREFIX.length);
     const args = commandBody.split(' ');
     const command = args.shift().toLowerCase();
 
@@ -33,6 +33,10 @@ class MessageManager {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async getNextAvailableHorseRace() {
+    
   }
 }
 

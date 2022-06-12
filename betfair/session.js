@@ -4,6 +4,30 @@ const auth = require('./auth.js');
 const BetfairInvocation = require('./invocation.js');
 
 // ************************************************************************
+// * Betting API - https://api.betfair.com:443/exchange/betting/json-rpc/v1/
+// ************************************************************************
+const API_BETTING_METHODS = [
+  // read-only
+  'listEventTypes',
+  'listCompetitions',
+  'listTimeRanges',
+  'listEvents',
+  'listMarketTypes',
+  'listCountries',
+  'listVenues',
+  'listMarketCatalogue',
+  'listMarketBook',
+  'listMarketProfitAndLoss',
+  'listCurrentOrders',
+  'listClearedOrders',
+  // transactional
+  'placeOrders',
+  'cancelOrders',
+  'replaceOrders',
+  'updateOrders',
+];
+
+// ************************************************************************
 // * Accounts API - https://api.betfair.com:443/exchange/account/json-rpc/v1/
 // ************************************************************************
 const API_ACCOUNT_METHODS = [
@@ -20,6 +44,23 @@ const API_ACCOUNT_METHODS = [
   'isAccountSubscribedToWebApp',
 ];
 
+// ************************************************************************
+// * Heartbeat API - https://api.betfair.com:443/exchange/betting/json-rpc/v1/
+// ************************************************************************
+const API_HEARTBEAT_METHODS = [
+  'heartbeat',
+];
+
+// ************************************************************************
+// * Scores API - https://api.betfair.com:443/exchange/scores/json-rpc/v1/
+// ************************************************************************
+const API_SCORES_METHODS = [
+  'listRaceDetails',
+  'listScores',
+  'listIncidents',
+  'listAvailableEvents',
+];
+
 class BetfairSession {
   // Constructor
   constructor(applicationKey, sessionKey = null) {
@@ -30,7 +71,10 @@ class BetfairSession {
     this.lastMenuUpdate = null;
     BetfairInvocation.setApplicationKey(applicationKey);
 
+    this.createApiMethods('betting', API_BETTING_METHODS);
     this.createApiMethods('accounts', API_ACCOUNT_METHODS);
+    this.createApiMethods('heartbeat', API_HEARTBEAT_METHODS);
+    this.createApiMethods('scores', API_SCORES_METHODS);
   }
 
   setSession(sessionKey) {
